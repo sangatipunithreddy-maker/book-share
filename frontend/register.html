@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Register — BookShare</title>
+<link rel="stylesheet" href="styles.css"></head>
+<body>
+<section class="center">
+  <div class="login card">
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px">
+      <div class="badge">B</div>
+      <div><h2 style="margin:0">Create Account</h2><p class="muted" style="margin:.25rem 0 0">Register to BookShare</p></div>
+    </div>
+    <form id="registerForm" class="grid gap-14">
+      <div class="field"><label>Full Name</label><input id="r_name" required></div>
+      <div class="field"><label>Email</label><input type="email" id="r_email" required></div>
+      <div class="field"><label>Password</label><input type="password" id="r_password" required></div>
+      <div class="field"><label>Role</label><select id="r_role"><option value="student">Student</option><option value="faculty">Faculty</option></select></div>
+      <div class="grid grid-2">
+        <div class="field"><label>Year</label><input id="r_year"></div>
+        <div class="field"><label>Branch</label><input id="r_branch"></div>
+      </div>
+      <button class="btn" type="submit">Create Account</button>
+      <p id="registerError" class="error" style="display:none"></p>
+      <p class="muted small">Already have an account? <a href="index.html">Back to Login</a></p>
+    </form>
+  </div>
+</section>
+<script src="js/auth.js"></script>
+<script>
+document.getElementById('registerForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const name=document.getElementById('r_name').value.trim();
+  const email=document.getElementById('r_email').value.trim();
+  const password=document.getElementById('r_password').value.trim();
+  const role=document.getElementById('r_role').value;
+  const year=document.getElementById('r_year').value.trim();
+  const branch=document.getElementById('r_branch').value.trim();
+  const all=loadUsers();
+  if(all.find(u=>u.email===email)){ const er=document.getElementById('registerError'); er.textContent='Email already registered'; er.style.display='block'; return; }
+  const id = all.reduce((m,u)=>Math.max(m,u.id),0)+1;
+  all.push({ id, name, email, password, role, year, branch });
+  saveUsers(all);
+  // auto login, go to dashboard
+  setSession({ token: Math.random().toString(36).slice(2), user:{ id, name, email, role } });
+  if(role==='student') location.href='student/dashboard.html';
+  else location.href='faculty/dashboard.html';
+});
+</script>
+</body></html>

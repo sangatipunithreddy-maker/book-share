@@ -1,0 +1,58 @@
+# === GLOBAL ===
+*.log
+*.tmp
+*.bak
+*.swp
+*~
+**/__pycache__/
+**/*.py[cod]
+.DS_Store
+
+# === PYTHON / DJANGO ===
+env/
+venv/
+.venv/
+ENV/
+*.env
+*.sqlite3
+db.sqlite3
+
+# Django static and media files
+staticfiles/
+media/
+static/
+media_root/
+
+# Django secret key .env file
+.env
+*.env
+
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+__pycache__/
+*.so
+
+# Coverage / Testing
+htmlcov/
+.coverage
+.tox/
+.env.test
+.nox/
+
+# === FRONTEND (HTML / CSS / JS) ===
+# If no node modules, ignore below not needed.
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Build / Dist
+dist/
+build/
+*.map
+
+# === EDITORS ===
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
