@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>View / Edit Profile — Admin</title>
+<link rel="stylesheet" href="../styles.css"></head>
+<body>
+<header class="app-header"><div class="wrap">
+  <div class="brand"><div class="badge">B</div><div><div class="brand-name">BookShare</div><div id="roleChip" class="muted small"></div></div></div>
+  <div class="userbar"><div id="whoami" class="muted small"></div><a class="btn ghost" href="#" id="logout">Logout</a></div>
+</div></header>
+
+<div class="container shell">
+  <aside class="sidebar"><nav class="card nav"><a data-id="dashboard" href="dashboard.html">Dashboard</a>
+<a data-id="profile" href="profile.html">View/Edit Profile</a>
+<a data-id="notifications" href="notifications.html">Notifications</a>
+<a data-id="moderate" href="moderate.html">Moderation Queue</a>
+<a data-id="manage-users" href="manage-users.html">Manage Student Profiles</a>
+<a data-id="invalid-ads" href="invalid-ads.html">Manage Invalid Ads</a>
+<a data-id="site-settings" href="site-settings.html">Site Settings</a></nav></aside>
+  <main class="card main-panel">
+    <div class="titlebar"><h2>View / Edit Profile</h2><div></div></div>
+    <div><div class="grid grid-2"><div class="field"><label>Name</label><input/></div><div class="field"><label>Contact No</label><input/></div></div><div style="margin-top:12px"><button class="btn">Save Changes</button></div></div>
+  </main>
+</div>
+<script src="../js/auth.js"></script>
+<script>
+ensureRole('admin');
+activateNav('profile');
+document.getElementById('logout').addEventListener('click', (e)=>{ e.preventDefault(); logoutUp(); });
+</script>
+</body></html>

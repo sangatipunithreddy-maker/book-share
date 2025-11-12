@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Site Settings — Admin</title>
+<link rel="stylesheet" href="../styles.css"></head>
+<body>
+<header class="app-header"><div class="wrap">
+  <div class="brand"><div class="badge">B</div><div><div class="brand-name">BookShare</div><div id="roleChip" class="muted small"></div></div></div>
+  <div class="userbar"><div id="whoami" class="muted small"></div><a class="btn ghost" href="#" id="logout">Logout</a></div>
+</div></header>
+
+<div class="container shell">
+  <aside class="sidebar"><nav class="card nav"><a data-id="dashboard" href="dashboard.html">Dashboard</a>
+<a data-id="profile" href="profile.html">View/Edit Profile</a>
+<a data-id="notifications" href="notifications.html">Notifications</a>
+<a data-id="moderate" href="moderate.html">Moderation Queue</a>
+<a data-id="manage-users" href="manage-users.html">Manage Student Profiles</a>
+<a data-id="invalid-ads" href="invalid-ads.html">Manage Invalid Ads</a>
+<a data-id="site-settings" href="site-settings.html">Site Settings</a></nav></aside>
+  <main class="card main-panel">
+    <div class="titlebar"><h2>Site Settings</h2><div></div></div>
+    <div><div class="grid grid-2"><div class="field"><label>Max Upload Size</label><select><option>10 MB</option><option>25 MB</option><option selected>50 MB</option><option>100 MB</option></select></div><div class="field"><label>Default Ad Status</label><select><option selected>Available</option><option>Reserved</option></select></div><div class="field"><label>Enable Email OTP</label><select><option>Enabled</option><option selected>Disabled</option></select></div></div><div class="mt-12"><button class="btn">Save Settings</button></div></div>
+  </main>
+</div>
+<script src="../js/auth.js"></script>
+<script>
+ensureRole('admin');
+activateNav('site-settings');
+document.getElementById('logout').addEventListener('click', (e)=>{ e.preventDefault(); logoutUp(); });
+</script>
+</body></html>

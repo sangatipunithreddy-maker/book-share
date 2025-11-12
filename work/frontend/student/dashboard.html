@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Dashboard — Student</title>
+<link rel="stylesheet" href="../styles.css"></head>
+<body><div class="topbar">Welcome, <strong id="userName"></strong></div>>
+<header class="app-header"><div class="wrap">
+  <div class="brand"><div class="badge">B</div><div><div class="brand-name">BookShare</div><div id="roleChip" class="muted small"></div></div></div>
+  <div class="userbar"><div id="whoami" class="muted small"></div><a class="btn ghost" href="#" id="logout">Logout</a></div>
+</div></header>
+
+<div class="container shell">
+  <aside class="sidebar"><nav class="card nav"><a data-id="dashboard" href="dashboard.html">Dashboard</a>
+<a data-id="profile" href="profile.html">View/Edit Profile</a>
+<a data-id="notifications" href="notifications.html">Notifications</a>
+<a data-id="post-ad" href="post-ad.html">Post Book Ad</a>
+<a data-id="my-ads" href="my-ads.html">View My Ads</a>
+<a data-id="browse" href="browse.html">Browse Book Ads</a>
+<a data-id="search" href="search.html">Search Books</a>
+<a data-id="buy" href="buy.html">Buy Book</a>
+<a data-id="interview-blog" href="interview-blog.html">Read Interview Blog</a>
+<a data-id="submit-interview" href="submit-interview.html">Submit Interview</a></nav></aside>
+  <main class="card main-panel">
+    <div class="titlebar"><h2>Dashboard</h2><div></div></div>
+    <div><div class="grid grid-3"><a class="card nav" href="post-ad.html" style="padding:14px">📢 Post Book Ad</a><a class="card nav" href="browse.html" style="padding:14px">📚 Browse Ads</a><a class="card nav" href="search.html" style="padding:14px">🔎 Search Books</a><a class="card nav" href="interview-blog.html" style="padding:14px">📝 Interview Blog</a><a class="card nav" href="submit-interview.html" style="padding:14px">✍️ Submit Interview</a><a class="card nav" href="notifications.html" style="padding:14px">🔔 Notifications</a></div></div>
+  </main>
+</div>
+<script src="../js/auth.js"></script>
+<script>
+ensureRole('student');
+activateNav('dashboard');
+document.getElementById('logout').addEventListener('click', (e)=>{ e.preventDefault(); logoutUp(); });
+</script>
+  <script src="../js/enhance.js"></script>
+</body></html>

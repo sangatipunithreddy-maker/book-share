@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>BookShare Register</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="js/auth.js"></script>
+</head>
+<body class="center">
+  <div class="card" style="width:420px">
+    <h2>Create account</h2>
+    <p id="registerError" class="error" style="display:none"></p>
+    <form id="registerForm" class="grid gap-12">
+      <label>Full name
+        <input id="r_name" type="text" required />
+      </label>
+      <label>Email
+        <input id="r_email" type="email" required />
+      </label>
+      <label>Password
+        <input id="r_password" type="password" required />
+      </label>
+      <label>Role
+        <select id="r_role">
+          <option value="student" selected>Student</option>
+          <option value="faculty">Faculty</option>
+          <option value="admin">Admin</option>
+        </select>
+      </label>
+      <div class="grid two">
+        <label>Year
+          <input id="r_year" type="text" placeholder="2nd" />
+        </label>
+        <label>Branch
+          <input id="r_branch" type="text" placeholder="CSE" />
+        </label>
+      </div>
+      <button class="btn" type="submit">Create account</button>
+    </form>
+    <p class="muted"><a href="index.html">Back to login</a></p>
+  </div>
+</body>
+</html>
