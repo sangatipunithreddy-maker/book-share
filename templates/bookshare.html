@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BookShare System — Flask Demo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+ <style>
+   /* =============================
+   GLOBAL STYLING
+    ============================= */
+    body {
+      background: #f5f7fb;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1100px;
+    }
+
+    /* Pages */
+    .page {
+      display: none;
+      padding: 22px 0;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* =============================
+      NAVBAR
+    ============================= */
+    #mainNav {
+      display: none;
+      background: #ffffffcc !important;
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #e7e9ec;
+    }
+
+    #mainNav .btn {
+      border-radius: 8px;
+    }
+
+    /* =============================
+      CARDS
+    ============================= */
+    .card-soft {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    /* User Avatar */
+    .user-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      background: #4f46e5;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    /* Buttons */
+    .btn {
+      border-radius: 8px !important;
+    }
+
+    .btn-primary {
+      background: #4f46e5;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: #4338ca;
+    }
+
+    .btn-outline-primary:hover {
+      background: #eef2ff;
+    }
+
+    /* Inputs */
+    .form-control, .form-select {
+      border-radius: 8px;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+    }
+
+    /* =============================
+      MODALS (Post Ad, Transactions)
+    ============================= */
+    #postModal,
+    #transModal,
+    #blogModal {
+      display: none;
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2500;
+      background: #ffffff;
+    }
+
+    #postModal .card,
+    #transModal .card,
+    #blogModal .card {
+      border-radius: 14px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+    }
+
+    /* =============================
+      PAYMENT MODAL FIXED
+    ============================= */
+    #paymentModal {
+      display: none !important;   /* Prevent accidental overlay */
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    #paymentModal.active {
+      display: flex !important;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #paymentModal .card {
+      border-radius: 14px;
+      width: 360px;
+      animation: popup 0.25s ease;
+    }
+
+    @keyframes popup {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* =============================
+      AD CARDS
+    ============================= */
+    .ad-card,
+    .card {
+      border-radius: 14px !important;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      transition: 0.2s ease;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+    }
+
+    /* =============================
+      BLOGS & SALES LIST CARDS
+    ============================= */
+    #blogsList .card,
+    #salesList .card {
+      padding: 18px;
+      border-radius: 12px;
+    }
+
+    /* =============================
+      LOGIN PAGE CENTERING
+    ============================= */
+    #loginPage {
+      max-width: 460px;
+      margin: 0 auto;
+      margin-top: 60px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    }
+
+    #registerPage {
+      max-width: 500px;
+      margin: 0 auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    }
+
+    /* =============================
+      TABLES / LIST ITEMS
+    ============================= */
+    .list-group-item {
+      border-radius: 8px !important;
+      margin-bottom: 6px;
+    }
+
+    /* Hover style for list */
+    .list-group-item:hover {
+      background: #f3f4f6;
+    }
+
+    /* =============================
+      OVERLAY BACKDROP FIX
+    ============================= */
+    #postModal,
+    #transModal,
+    #blogModal {
+      background: transparent;
+    }
+
+    #postModal::before,
+    #transModal::before,
+    #blogModal::before,
+    #paymentModal::before {
+      content: "";
+      position: fixed;
+      left:0; top:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(2px);
+      z-index: -1;
+      border-radius: 0;
+    }
+
+ </style>
+
+</head>
+<body>
+  <nav id="mainNav" class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold text-primary" href="#" onclick="openDashboard()">📚 BookShare</a>
+      <div class="d-flex">
+        <button class="btn btn-outline-primary me-2" onclick="openDashboard()">Dashboard</button>
+        <button class="btn btn-outline-success me-2" onclick="loadHistory()">My History</button>
+        <button class="btn btn-outline-info me-2" onclick="loadSales()">Sales</button>
+        <button class="btn btn-outline-secondary me-2" onclick="loadBlogs()">Blogs</button>
+        <button class="btn btn-outline-danger" id="logoutBtnNav">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+<div class="container mt-4">
+  <div id="loginPage" class="page active card-soft p-4">
+    <h3>BookShare — Login</h3>
+      <form onsubmit="return handleLogin(event)" class="mt-3">
+
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input id="loginEmail" class="form-control" placeholder="email" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input id="loginPassword" type="password" class="form-control" placeholder="password" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Role</label>
+          <select id="userType" class="form-select" required>
+            <option value="">Select role</option>
+            <option value="student">Student</option>
+            <option value="faculty">Faculty</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <button class="btn btn-primary w-100 mb-2">Login</button>
+        <button type="button" id="showRegister" class="btn btn-link w-100">Register</button>
+
+      </form>
+    <div class="mt-3"><h6>Demo users</h6><ul id="demoList"></ul></div>
+  </div>
+
+  <div id="registerPage" class="page card-soft p-4">
+    <h3>Register</h3>
+    <form onsubmit="return handleRegister(event)" class="row g-3">
+      <div class="col-md-6"><input id="regName" placeholder="Full name" class="form-control" required></div>
+      <div class="col-md-6"><input id="regEmail" placeholder="Email" class="form-control" required></div>
+      <div class="col-md-6"><input id="regPassword" type="password" placeholder="Password" class="form-control" required></div>
+      <div class="col-md-6"><select id="regRole" class="form-select" required><option value="">role</option><option value="student">student</option><option value="faculty">faculty</option></select></div>
+      <div class="col-12"><button class="btn btn-success">Create</button> <button type="button" id="cancelRegister" class="btn btn-link">Cancel</button></div>
+    </form>
+  </div>
+
+  <div id="dashboard" class="page">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <div id="avatar" class="user-avatar bg-primary">U</div>
+      <div>
+        <h4 id="title">Dashboard</h4>
+        <div id="subtitle" class="small-muted"></div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5>Ads</h5>
+          <div><input id="searchInput" class="form-control" placeholder="search" oninput="loadAds()" /></div>
+        </div>
+        <div id="adsList"></div>
+      </div>
+      <div class="col-md-4">
+        <div class="card-soft p-3 mb-3"><h6>Notifications</h6><div id="notifList"></div></div>
+        <div class="card-soft p-3"><h6>Actions</h6><div id="actions"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="salesPage" class="page card-soft p-4">
+    <h4>Sales — Pending Requests</h4>
+    <div id="salesList"></div>
+    <button class="btn btn-outline-primary mt-3" onclick="openDashboard()">Back to Dashboard</button>
+  </div>
+
+  <div id="blogsPage" class="page card-soft p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4>Interview Blogs</h4>
+      <div>
+        <button id="newBlogBtn" class="btn btn-primary">New Blog</button>
+      </div>
+    </div>
+    <div id="blogsList"></div>
+    <button class="btn btn-outline-primary mt-3" onclick="openDashboard()">Back to Dashboard</button>
+  </div>
+
+  <div id="blogModal" style="display:none; position:fixed; left:50%; top:28%; transform:translate(-50%, -28%); z-index:2500;">
+    <div class="card p-3" style="width:640px;">
+      <h5 id="blogModalTitle">New Blog</h5>
+      <input id="blogTitle" placeholder="Title" class="form-control mb-2">
+      <textarea id="blogContent" placeholder="Share your interview experience..." class="form-control mb-2" rows="6"></textarea>
+      <div class="d-flex justify-content-between">
+        <div>
+          <button id="saveBlogBtn" class="btn btn-primary">Save</button>
+          <button id="cancelBlogBtn" class="btn btn-link">Cancel</button>
+        </div>
+        <div id="blogModalInfo" class="small text-muted"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simple "modals" -->
+  <div id="postModal" style="display:none; position:fixed; left:50%; top:30%; transform:translate(-50%, -30%); z-index:2500;">
+    <div class="card p-3" style="width:360px;">
+      <h5>Post Ad</h5>
+      <input id="adTitle" placeholder="Title" class="form-control mb-2">
+      <input id="adAuthor" placeholder="Author" class="form-control mb-2">
+      <input id="adPrice" placeholder="Price" class="form-control mb-2" type="number" min="0" step="0.01">
+      <textarea id="adDesc" placeholder="Desc" class="form-control mb-2"></textarea>
+      <div class="d-flex justify-content-between">
+        <button id="postBtn" class="btn btn-primary">Post</button>
+        <button id="postCancel" class="btn btn-link">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="transModal" style="display:none; position:fixed; left:50%; top:30%; transform:translate(-50%, -30%); z-index:2500;">
+    <div class="card p-3" style="width:360px;">
+      <h5 id="transTitle">Request</h5>
+      <div id="transInfo" class="mb-2"></div>
+      <select id="transType" class="form-select mb-2"><option value="purchase">Purchase</option><option value="reserve">Reserve</option></select>
+      <div class="d-flex justify-content-between">
+        <button id="confirmTrans" class="btn btn-success">Send Request</button>
+        <button id="transCancel" class="btn btn-link">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Animation Modal -->
+  <div id="paymentModal" class="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex justify-content-center align-items-center" style="display:none; z-index:2000;">
+    <div class="card p-4 text-center" style="width:320px;">
+      <h5 id="paymentTitle">Processing...</h5>
+      <div class="progress my-3" style="height:10px;">
+        <div id="paymentBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%"></div>
+      </div>
+      <p id="paymentText">Please wait...</p>
+    </div>
+  </div>
+
+  <div id="historyPage" class="page card-soft p-4">
+    <h4>My Transactions History</h4>
+    <div id="historyContent"></div>
+    <button class="btn btn-outline-primary mt-3" onclick="openDashboard()">Back to Dashboard</button>
+  </div>
+  <!-- MANAGE USERS PAGE -->
+  <div id="manageUsersPage" class="page card-soft p-4">
+    <h4>Manage Users</h4>
+    <div id="manageUsersList"></div>
+    <button class="btn btn-outline-primary mt-3" onclick="openDashboard()">Back</button>
+  </div>
+</div>
+
+
+<script>
+const API = '/api';
+let currentUser = null;
+
+// helpers
+const el = id => document.getElementById(id);
+function escapeHtml(unsafe) {
+  if (unsafe === null || unsafe === undefined) return '';
+  return String(unsafe).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const e = el(id);
+  if (e) e.classList.add('active');
+  if (id === 'loginPage' || id === 'registerPage') setNavVisible(false);
+  else setNavVisible(true);
+  window.scrollTo(0, 0);
+}
+function setNavVisible(show) { const nav = el('mainNav'); if (!nav) return; nav.style.display = show ? 'block' : 'none'; }
+
+// init
+function init(){
+  el('paymentModal') && (el('paymentModal').style.display = 'none');
+  el('showRegister')?.addEventListener('click', ()=> showPage('registerPage'));
+  el('cancelRegister')?.addEventListener('click', ()=> showPage('loginPage'));
+  el('logoutBtnNav')?.addEventListener('click', doLogout);
+  el('postBtn')?.addEventListener('click', postAd);
+  el('postCancel')?.addEventListener('click', ()=> { el('postModal').style.display='none'; clearPostForm(); });
+  el('confirmTrans')?.addEventListener('click', confirmTransaction);
+  el('transCancel')?.addEventListener('click', ()=> el('transModal').style.display='none');
+  el('newBlogBtn')?.addEventListener('click', ()=> openBlogModal());
+  el('cancelBlogBtn')?.addEventListener('click', ()=> closeBlogModal());
+  el('saveBlogBtn')?.addEventListener('click', saveBlog);
+
+  loadDemoUsers();
+
+  const s = sessionStorage.getItem('currentUser');
+  if (s) {
+    try {
+      const obj = JSON.parse(s);
+      fetch(API + '/users').then(r=>r.json()).then(d=>{
+        const u = (d.users||[]).find(x=>x.id===obj.id);
+        if (u) { currentUser = u; openDashboard(); }
+        else { sessionStorage.removeItem('currentUser'); showPage('loginPage'); }
+      }).catch(err => { console.error(err); showPage('loginPage'); });
+    } catch(e) { sessionStorage.removeItem('currentUser'); showPage('loginPage'); }
+  } else {
+    setNavVisible(false);
+    showPage('loginPage');
+  }
+}
+
+function doLogout(){
+  currentUser = null;
+  sessionStorage.removeItem('currentUser');
+  showPage('loginPage');
+}
+
+// auth
+function handleLogin(e){
+  if(e) e.preventDefault();
+  const email = el('loginEmail').value.trim();
+  const password = el('loginPassword').value;
+  const role = el('userType').value;
+  fetch(API + '/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password, role})})
+    .then(r=>r.json().then(j=>({status:r.status, body:j})))
+    .then(res=>{
+      if(res.status!==200){ alert('Login failed: '+(res.body.message||'')); return; }
+      currentUser = res.body.user;
+      sessionStorage.setItem('currentUser', JSON.stringify({id: currentUser.id}));
+      openDashboard();
+    }).catch(e=>{ console.error(e); alert('Network error'); });
+  return false;
+}
+function handleRegister(e){
+  if(e) e.preventDefault();
+  const name = el('regName').value.trim();
+  const email = el('regEmail').value.trim();
+  const password = el('regPassword').value;
+  const role = el('regRole').value;
+  if(!name||!email||!password||!role){ alert('Please fill all fields'); return false; }
+  fetch(API + '/register', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, email, password, role})})
+    .then(r=>r.json().then(j=>({status:r.status, body:j}))).then(res=>{
+      if(res.status!==200){ alert('Register failed: '+(res.body.message||'')); return; }
+      alert('Registered. Please login.');
+      showPage('loginPage');
+    }).catch(e=>{ console.error(e); alert('Network error'); });
+  return false;
+}
+
+// demo users
+function loadDemoUsers(){
+  fetch(API + '/users').then(r=>r.json()).then(d=>{
+    const ul = el('demoList'); if(!ul) return;
+    ul.innerHTML='';
+    (d.users||[]).forEach(u=>{ const li = document.createElement('li'); li.textContent = u.name + ' — ' + u.email + ' ('+u.role+')'; ul.appendChild(li); });
+  }).catch(e=>{ console.error(e); });
+}
+
+// dashboard
+function openDashboard(){
+  if(!currentUser){ alert('Please login first'); showPage('loginPage'); return; }
+  showPage('dashboard');
+  el('avatar').textContent = (currentUser.name||'U').charAt(0).toUpperCase();
+  el('title').textContent = (currentUser.role?.charAt(0).toUpperCase() + currentUser.role?.slice(1) || 'User') + ' Dashboard';
+  el('subtitle').textContent = 'Welcome, ' + currentUser.name;
+  renderActions();
+  loadAds();
+  loadNotifications();
+}
+function renderActions(){
+  const a = el('actions'); a.innerHTML = '';
+  const post = document.createElement('button');
+  post.className='btn btn-primary mb-2 w-100'; post.textContent='Post Ad';
+  post.onclick = ()=> { if(!currentUser){ alert('Login required'); return; } clearPostForm(); el('postModal').style.display='block'; };
+  a.appendChild(post);
+
+  const historyBtn = document.createElement('button');
+  historyBtn.className='btn btn-outline-primary mb-2 w-100'; historyBtn.textContent='My History'; historyBtn.onclick = ()=> loadHistory();
+  a.appendChild(historyBtn);
+
+  const salesBtn = document.createElement('button');
+  salesBtn.className='btn btn-outline-info mb-2 w-100'; salesBtn.textContent='Sales'; salesBtn.onclick = ()=> loadSales();
+  a.appendChild(salesBtn);
+
+  const blogsBtn = document.createElement('button');
+  blogsBtn.className='btn btn-outline-secondary mb-2 w-100'; blogsBtn.textContent='Blogs'; blogsBtn.onclick = ()=> loadBlogs();
+  a.appendChild(blogsBtn);
+
+  if(currentUser && currentUser.role==='admin'){
+    const manageUsers = document.createElement('button');
+    manageUsers.className='btn btn-danger w-100'; manageUsers.textContent='Manage Users'; manageUsers.onclick = manageUsersAction;
+    a.appendChild(manageUsers);
+  }
+}
+
+// Ads
+function loadAds(){
+  const q = (el('searchInput').value||'').trim().toLowerCase();
+  fetch(API + '/ads').then(r=>r.json()).then(d=>{
+    const container = el('adsList'); container.innerHTML = '';
+    const ads = (d.ads||[]).filter(ad=>{
+      if(!q) return true;
+      return (ad.book.name||'').toLowerCase().includes(q) || ((ad.book.author||'').toLowerCase().includes(q));
+    });
+    ads.forEach(ad=>{
+      const card = document.createElement('div'); card.className='card p-3 mb-3';
+      const statusColor = (ad.status||'').toString().toLowerCase().startsWith('reserved') ? 'text-warning' : (ad.status==='sold' ? 'text-danger' : 'text-success');
+      card.innerHTML = `
+        <div class="d-flex justify-content-between">
+          <div><strong>${escapeHtml(ad.book.name)}</strong><div class="text-muted">by ${escapeHtml(ad.book.author)}</div></div>
+          <div><strong>$${Number(ad.price).toFixed(2)}</strong><div class="${statusColor}">Status: ${escapeHtml(ad.status)}</div></div>
+        </div>
+        <div class="mt-2">${escapeHtml(ad.description||'')}</div>
+      `;
+      const footer = document.createElement('div'); footer.className='mt-2 d-flex gap-2 flex-wrap';
+      const buy = document.createElement('button'); buy.className='btn btn-sm btn-success'; buy.textContent='Buy';
+      buy.onclick = ()=> { if(!currentUser){ alert('Login required'); return; } el('transType').value='purchase'; openTransaction(ad.adID, ad); };
+      footer.appendChild(buy);
+      const reserve = document.createElement('button'); reserve.className='btn btn-sm btn-warning'; reserve.textContent='Reserve';
+      reserve.onclick = ()=> { if(!currentUser){ alert('Login required'); return; } el('transType').value='reserve'; openTransaction(ad.adID, ad); };
+      footer.appendChild(reserve);
+      const view = document.createElement('button'); view.className='btn btn-sm btn-outline-secondary'; view.textContent='View Owner';
+      view.onclick = ()=> {
+        fetch(API + '/users').then(r=>r.json()).then(res=>{
+          const owner = (res.users||[]).find(u=>u.id===ad.ownerProfileID);
+          if(owner) alert(`Owner Details:\nName: ${owner.name}\nEmail: ${owner.email}\nRole: ${owner.role}`);
+          else alert('Owner not found.');
+        });
+      };
+      footer.appendChild(view);
+
+      // faculty delete student ads
+      if(currentUser && currentUser.role==='faculty'){
+        fetch(API + '/users').then(r=>r.json()).then(rj=>{
+          const owner = (rj.users||[]).find(u=>u.id===ad.ownerProfileID);
+          if(owner && owner.role==='student'){
+            const del = document.createElement('button'); del.className='btn btn-sm btn-danger'; del.textContent='Delete (student ad)';
+            del.onclick = ()=> deleteAd(ad.adID);
+            footer.appendChild(del);
+          }
+        });
+      }
+      // admin delete any ad
+      if(currentUser && currentUser.role==='admin'){
+        const del = document.createElement('button'); del.className='btn btn-sm btn-outline-danger'; del.textContent='Delete';
+        del.onclick = ()=> deleteAd(ad.adID);
+        footer.appendChild(del);
+      }
+      // owner remove own ad
+      if(currentUser && currentUser.id === ad.ownerProfileID){
+        const rem = document.createElement('button'); rem.className='btn btn-sm btn-outline-danger'; rem.textContent='Remove my ad';
+        rem.onclick = ()=> deleteAd(ad.adID);
+        footer.appendChild(rem);
+      }
+
+      card.appendChild(footer); container.appendChild(card);
+    });
+  }).catch(e=>{ console.error(e); el('adsList').innerHTML = '<div class="text-danger">Failed to load ads.</div>'; });
+}
+
+// Post ad
+function clearPostForm(){ el('adTitle').value=''; el('adAuthor').value=''; el('adPrice').value=''; el('adDesc').value=''; }
+function postAd(){
+  if(!currentUser){ alert('Login required'); return; }
+  const title = (el('adTitle').value||'').trim();
+  const author = (el('adAuthor').value||'').trim();
+  const priceRaw = el('adPrice').value;
+  const price = priceRaw === '' ? null : parseFloat(priceRaw);
+  const desc = (el('adDesc').value||'').trim();
+  if(!title || !author || price===null || isNaN(price)){ alert('Please provide title, author, valid price'); return; }
+  fetch(API + '/ads', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({title, author, year:null, price, desc, owner_id: currentUser.id})})
+    .then(r=>r.json().then(j=>({status:r.status, body:j}))).then(res=>{
+      if(res.status!==200){ alert('Failed: '+(res.body.message||'')); return; }
+      alert('Ad posted #' + res.body.adID);
+      el('postModal').style.display='none'; clearPostForm(); loadAds(); loadNotifications();
+    }).catch(e=>{ console.error(e); alert('Network error'); });
+}
+
+// delete ad
+function deleteAd(adID){
+  if(!currentUser){ alert('Login required'); return; }
+  if(!confirm('Delete ad #' + adID + '?')) return;
+  fetch(API + '/ads/' + adID, {method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({requester_id: currentUser.id})})
+    .then(r=>r.json().then(j=>({status:r.status, body:j}))).then(res=>{
+      if(res.status!==200){ alert('Failed: '+(res.body.message||'')); return; }
+      alert('Deleted'); loadAds(); loadNotifications();
+    }).catch(e=>{ console.error(e); alert('Network error'); });
+}
+
+// transactions
+let currentTransAd = null;
+function openTransaction(adID, ad){
+  currentTransAd = adID;
+  el('transInfo').textContent = `${ad.book.name} — $${Number(ad.price).toFixed(2)}`;
+  el('transModal').style.display='block';
+}
+function confirmTransaction(){
+  if(!currentUser){ alert('Login required'); return; }
+  const type = el('transType').value;
+  el('transModal').style.display='none';
+  fetch(API + '/transactions', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ad_id: currentTransAd, buyer_id: currentUser.id, type})})
+    .then(r=>r.json().then(j=>({status:r.status, body:j}))).then(res=>{
+      if(res.status!==200){ alert('Failed: '+(res.body.message||'')); return; }
+      alert('Request sent — pending owner approval. Transaction #' + res.body.transactionID);
+      loadAds(); loadNotifications();
+    }).catch(e=>{ console.error(e); alert('Network error'); });
+}
+
+// sales (owner)
+function loadSales(){
+  if(!currentUser){ alert('Login required'); return; }
+  fetch(API + '/sales/' + currentUser.id).then(r=>r.json()).then(d=>{
+    const list = el('salesList'); list.innerHTML = '';
+    const sales = d.sales || [];
+    if(sales.length===0){ list.innerHTML = '<p class="text-muted">No pending requests.</p>'; showPage('salesPage'); return; }
+    sales.forEach(s=>{
+      const card = document.createElement('div'); card.className='card p-2 mb-2';
+      card.innerHTML = `<div><strong>${escapeHtml(s.book)}</strong> — $${Number(s.price).toFixed(2)}<div class="text-muted small">Request: ${escapeHtml(s.type)} by ${escapeHtml(s.buyer.name)}</div></div>`;
+      const foot = document.createElement('div'); foot.className='mt-2';
+      const accept = document.createElement('button'); accept.className='btn btn-sm btn-success me-2'; accept.textContent='Accept';
+      accept.onclick = ()=> acceptTransaction(s.transactionID);
+      const decline = document.createElement('button'); decline.className='btn btn-sm btn-outline-secondary'; decline.textContent='Decline';
+      decline.onclick = ()=> declineTransaction(s.transactionID);
+      foot.appendChild(accept); foot.appendChild(decline);
+      card.appendChild(foot);
+      list.appendChild(card);
+    });
+    showPage('salesPage');
+  }).catch(e=>{ console.error(e); alert('Failed to load sales'); });
+}
+function acceptTransaction(txID){
+  if(!currentUser){ alert('Login required'); return; }
+  if(!confirm('Accept this request?')) return;
+  fetch(API + '/transactions/' + txID + '/accept', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({owner_id: currentUser.id})})
+    .then(r=>r.json().then(j=>({status:r.status, body:j}))).then(res=>{
+      if(res.status!==200){ alert('Failed: '+(res.body.message||'')); return; }
+      showPaymentAnimation('Completing sale...', ()=>{ alert('Sale completed (Transaction #' + res.body.transactionID + ').'); loadSales(); loadAds(); loadNotifications(); });
+    }).catch(e=>{ console.error(e); alert('Network error'); });
+}
+function declineTransaction(txID){
+  alert('Decline not implemented server-side; skipping.');
+  loadSales();
+}
+
+// notifications
+function loadNotifications(){
+  if(!currentUser) return;
+  fetch(API + '/notifications/' + currentUser.id).then(r=>r.json()).then(d=>{
+    const nl = el('notifList'); nl.innerHTML = '';
+    (d.notifications||[]).forEach(n=>{ const div = document.createElement('div'); div.className='mb-2'; div.innerHTML = `<div class="text-muted small">${new Date(n.date).toLocaleString()}</div><div>${escapeHtml(n.content)}</div>`; nl.appendChild(div); });
+  }).catch(e=>{ console.error(e); });
+}
+
+// history
+function loadHistory(){
+  if(!currentUser){ alert('Login required'); return; }
+  fetch(API + '/history/' + currentUser.id).then(r=>r.json()).then(d=>{
+    const hc = el('historyContent'); hc.innerHTML = '';
+    const section = (title, arr, color) => {
+      const div = document.createElement('div'); div.className='mb-3';
+      div.innerHTML = `<h5 class="text-${color}">${title}</h5>`;
+      if(!arr || arr.length===0){ div.innerHTML += '<p class="text-muted">None</p>'; }
+      else {
+        const list = document.createElement('ul'); list.className='list-group';
+        arr.forEach(item=>{
+          const li = document.createElement('li'); li.className='list-group-item list-group-item-action';
+          li.innerHTML = `<strong>${escapeHtml(item.book)}</strong> — $${Number(item.price).toFixed(2)} <small class="text-muted">(${escapeHtml(item.status || item.type)})</small>`;
+          list.appendChild(li);
+        });
+        div.appendChild(list);
+      }
+      hc.appendChild(div);
+    };
+    section("Pending Requests", d.pending, "warning");
+    section("Purchased Books", d.purchased, "success");
+    section("Reserved Books", d.reserved, "warning");
+    section("Sold Books (as owner)", d.sold, "danger");
+    showPage('historyPage');
+  }).catch(e=>{ console.error(e); alert('Failed to load history'); });
+}
+
+// payment animation
+function showPaymentAnimation(message, callback) {
+  const modal = el('paymentModal'); if(!modal) return;
+  const bar = el('paymentBar'); const title = el('paymentTitle'); const text = el('paymentText');
+  title.textContent = message || 'Processing...'; text.textContent = 'Please wait...'; bar.style.width='0%'; modal.style.display='flex';
+  let prog = 0; const interval = setInterval(()=>{ prog += 12; bar.style.width = prog + '%'; if(prog>=100){ clearInterval(interval); text.textContent='Done'; setTimeout(()=>{ modal.style.display='none'; if(callback) callback(); }, 500); } }, 140);
+}
+
+// admin manage users (list + delete allowed roles)
+function manageUsersAction() {
+  if (!currentUser || currentUser.role !== 'admin') {
+    alert("Only admin can access this page");
+    return;
+  }
+
+  fetch(API + '/users')
+    .then(r => r.json())
+    .then(data => {
+      const users = data.users || [];
+      const list = el("manageUsersList");
+
+      // show only students + faculty
+      const filtered = users.filter(u => u.role !== "admin");
+
+      if (filtered.length === 0) {
+        list.innerHTML = "<p class='text-muted'>No students or faculty found.</p>";
+        showPage("manageUsersPage");
+        return;
+      }
+
+      list.innerHTML = "";
+
+      filtered.forEach(u => {
+        const card = document.createElement("div");
+        card.className = "card p-3 mb-2";
+
+        card.innerHTML = `
+          <div class="d-flex justify-content-between">
+            <div>
+              <strong>${escapeHtml(u.name)}</strong>
+              <div class="text-muted small">${escapeHtml(u.email)}</div>
+              <div class="text-muted small">Role: ${escapeHtml(u.role)}</div>
+            </div>
+            <button class="btn btn-sm btn-danger" onclick="deleteManagedUser(${u.id})">
+              Delete
+            </button>
+          </div>
+        `;
+
+        list.appendChild(card);
+      });
+
+      showPage("manageUsersPage");
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Failed to load users");
+    });
+}
+function deleteManagedUser(uid){
+  if(!confirm("Delete this user?")) return;
+
+  fetch(API + "/users", {
+    method: "DELETE",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      user_id: uid,
+      requester_id: currentUser.id
+    })
+  })
+  .then(r => r.json().then(j => ({status:r.status, body:j})))
+  .then(res => {
+    if(res.status !== 200){
+      alert("Failed: " + (res.body.message || ""));
+      return;
+    }
+
+    alert("User deleted");
+
+    // refresh list
+    manageUsersAction();
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Network error");
+  });
+}
+
+
+// ----------------- BLOGS UI -----------------
+let blogEditId = null;
+function loadBlogs(){
+  fetch(API + '/blogs').then(r=>r.json()).then(d=>{
+    const list = el('blogsList'); list.innerHTML = '';
+    const blogs = d.blogs || [];
+    if(blogs.length===0){ list.innerHTML = '<p class="text-muted">No blogs yet.</p>'; showPage('blogsPage'); return; }
+    blogs.forEach(b=>{
+      const card = document.createElement('div'); card.className='card p-3 mb-2';
+      card.innerHTML = `<div class="d-flex justify-content-between"><div><strong>${escapeHtml(b.title)}</strong><div class="text-muted small">by ${escapeHtml(b.author_name)} — ${new Date(b.date_posted).toLocaleString()}</div></div></div><div class="mt-2">${escapeHtml(b.content).replace(/\n/g,'<br>')}</div>`;
+      const foot = document.createElement('div'); foot.className='mt-2';
+      // Edit: author OR faculty OR admin
+      if(currentUser && (currentUser.id===b.author_id || currentUser.role==='faculty' || currentUser.role==='admin')){
+        const edit = document.createElement('button'); edit.className='btn btn-sm btn-outline-primary me-2'; edit.textContent='Edit';
+        edit.onclick = ()=> openBlogModal(b);
+        foot.appendChild(edit);
+      }
+      // Delete: faculty OR admin
+      if(currentUser && (currentUser.role==='faculty' || currentUser.role==='admin')){
+        const del = document.createElement('button'); del.className='btn btn-sm btn-outline-danger'; del.textContent='Delete';
+        del.onclick = ()=> { if(!confirm('Delete blog?')) return; fetch(API + '/blogs/' + b.id, {method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({user_id: currentUser.id})}).then(r=>r.json().then(j=>({status:r.status, body:j}))).then(res=>{ if(res.status!==200){ alert('Failed: '+(res.body.message||'')); return; } alert('Deleted'); loadBlogs(); }).catch(e=>{ console.error(e); alert('Network error'); }); };
+        foot.appendChild(del);
+      }
+      card.appendChild(foot); list.appendChild(card);
+    });
+    showPage('blogsPage');
+  }).catch(e=>{ console.error(e); alert('Failed to load blogs'); });
+}
+
+function openBlogModal(blog){
+  blogEditId = null;
+  el('blogTitle').value = '';
+  el('blogContent').value = '';
+  el('blogModalInfo').textContent = '';
+  el('blogModalTitle').textContent = 'New Blog';
+  if(blog){
+    blogEditId = blog.id;
+    el('blogTitle').value = blog.title;
+    el('blogContent').value = blog.content;
+    el('blogModalTitle').textContent = 'Edit Blog';
+    el('blogModalInfo').textContent = `Editing as ${currentUser?.name || 'You'}`;
+  } else {
+    el('blogModalInfo').textContent = '';
+  }
+  // Only show create button if logged-in and allowed (students + faculty)
+  if(!currentUser){ alert('Login required to post or edit blogs'); return; }
+  if(!blog && !['student','faculty'].includes(currentUser.role)){ alert('Only students and faculty can post blogs'); return; }
+  el('blogModal').style.display='block';
+}
+function closeBlogModal(){ el('blogModal').style.display='none'; blogEditId=null; }
+function saveBlog(){
+  if(!currentUser){ alert('Login required'); return; }
+  const title = (el('blogTitle').value||'').trim();
+  const content = (el('blogContent').value||'').trim();
+  if(!title || !content){ alert('Provide title and content'); return; }
+  if(blogEditId){
+    // edit
+    fetch(API + '/blogs/' + blogEditId, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({user_id: currentUser.id, title, content})})
+      .then(r=>r.json().then(j=>({status:r.status, body:j}))).then(res=>{
+        if(res.status!==200){ alert('Failed: '+(res.body.message||'')); return; }
+        alert('Saved'); closeBlogModal(); loadBlogs();
+      }).catch(e=>{ console.error(e); alert('Network error'); });
+  } else {
+    // create
+    fetch(API + '/blogs', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({title, content, author_id: currentUser.id})})
+      .then(r=>r.json().then(j=>({status:r.status, body:j}))).then(res=>{
+        if(res.status!==200){ alert('Failed: '+(res.body.message||'')); return; }
+        alert('Blog posted'); closeBlogModal(); loadBlogs();
+      }).catch(e=>{ console.error(e); alert('Network error'); });
+  }
+}
+
+// start
+window.onload = init;
+</script>
+</body>
+</html>
