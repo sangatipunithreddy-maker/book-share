@@ -46,13 +46,13 @@ A complete student–faculty–admin book sharing platform built using **Flask +
 
 ### 1. Create Virtual Environment
 ```
-python -m venv .venv
+python -m venv venv
 
 
 ```
 ### for Windows
 ```
-.venv\Scripts\activate
+.venv\Scripts\activate.ps1
 ```
 
 ### Installing Requirements
