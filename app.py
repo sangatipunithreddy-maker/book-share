@@ -200,7 +200,12 @@ def api_transactions():
     buyer = User.query.get(buyer_id)
     if not buyer:
         return jsonify({'ok': False, 'message': 'Buyer not found'}), 400
+    if ad.owner_id == buyer_id:
+        return jsonify({'ok': False, 'message': 'You cannot buy your own book'}), 400
 
+    # Can't request if not available
+    if ad.status != 'available':
+        return jsonify({'ok':False,'message':'Ad not available for requests'}), 400
     # Can't request if not available
     if ad.status != 'available':
         return jsonify({'ok':False,'message':'Ad not available for requests'}), 400
